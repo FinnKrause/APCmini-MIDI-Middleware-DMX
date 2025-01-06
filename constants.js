@@ -1,17 +1,19 @@
 const Colors = {
   Red: 5, // #FF0000
   BrightRed: 4, // #FF4C4C
+
   Green: 21, // #00FF00
   BrightGreen: 17, // #54FF00
+
   Blue: 45, // #0000FF
   BrightBlue: 36, // #4CC3FF
+
   Cyan: 119, // #E0FFFF
   Magenta: 53, // #FF00FF
   Yellow: 13, // #FFFF00
   BrightYellow: 12, // #FFFF4C
   Orange: 9, // #FF5400
   Purple: 49, // #874CFF
-  LightGreen: 16, // #88FF4C
   VividPink: 56, // #FF4C87
   NeonPink: 57, // #FF0054
   VibrantCyan: 37, // #00A9FF

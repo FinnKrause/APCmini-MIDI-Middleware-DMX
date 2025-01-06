@@ -1,168 +1,104 @@
 const { SceneLaunchButtonIndexes, TrackButtonIndexes, MatrixButtonIdexes, LModes, Colors } = require("./constants.js");
+const { buildDesiredLooksMap } = require("./desiredLooks.js");
 
 class APCAPI {
-  constructor(output) {
+  constructor(output, deslook) {
     this.output = output;
-    this.MatrixButtonMap = new Map(); // int: {acitve: boolean, lastValue: {}}
-    this.SCButtonMap = new Map(); // int: {acitve: boolean, lastValue: {}}
-
-    this.defaultConfig = { velocity: Colors.Red, channel: LModes.Blinking1t4, blink: true };
+    this.desiredLooks = buildDesiredLooksMap();
   }
 
-  getNote(nnote) {
-    return this.MatrixButtonMap.get(nnote) || this.SCButtonMap.get(nnote);
-  }
+  setButtonLook(nnote, look) {
+    if (!this.#isButtonPressValid(nnote)) return;
 
-  printSCButtonMap() {
-    this.SCButtonMap.forEach((value, key) => {
-      console.log(`${key}: ${JSON.stringify(value)}`);
-    });
-  }
-
-  toggleNote(nnote) {
-    if (this.MatrixButtonMap.has(nnote)) {
-      const element = this.MatrixButtonMap.get(nnote);
-
-      if (element.active === true) {
-        this.turnOffNote(nnote);
-        return;
+    if (!this.desiredLooks.has(nnote) || this.desiredLooks.get(nnote)[look] == undefined) {
+      switch (look) {
+        case "off":
+          this.changeButton(nnote, Colors.Red, LModes.Brightness10);
+          break;
+        default:
+          this.changeButton(nnote, Colors.Red, LModes.Pulsing1t4);
+          break;
       }
+      return;
+    }
 
-      this.changeMatrixButton(nnote, element.lastConfig.velocity, element.lastConfig.channel);
-    } else if (this.SCButtonMap.has(nnote)) {
-      const element = this.SCButtonMap.get(nnote);
+    const queriedLook = this.desiredLooks.get(nnote);
+    this.changeButton(nnote, queriedLook[look].color, queriedLook[look].lmode);
+  }
 
-      if (element.active) {
-        this.turnOffNote(nnote);
-        return;
-      }
-      this.changeSingleColorButton(nnote, element.lastConfig.blink);
-    } else {
-      new Error("No entry found");
+  changeButton(nnote, color, lmode) {
+    if (!this.#isButtonPressValid(nnote)) return;
+
+    if (this.#isMatrixButton(nnote)) {
+      this.output.send("noteon", {
+        note: nnote,
+        velocity: color,
+        channel: lmode,
+      });
+    } else if (this.#isSCButton(nnote)) {
+      this.output.send("noteon", {
+        note: nnote,
+        velocity: lmode > 6 ? 0x02 : 0x01,
+        channel: 0,
+      });
     }
   }
 
-  changeMatrixButton(nnote, color = Colors.Red, LightingMode = LModes.Brightness100) {
-    this.output.send("noteon", {
-      note: nnote,
-      velocity: color,
-      channel: LightingMode,
-    });
+  offNote(nnote) {
+    if (!this.#isButtonPressValid(nnote)) return;
 
-    this.#toggleButton(nnote, true, {
-      velocity: color,
-      channel: LightingMode,
-    });
-  }
-
-  changeSingleColorButton(nnote, blink = false) {
-    if (nnote > 119 || (nnote > 107 && nnote < 112) || nnote < 100) {
-      throw new Error(`The note [${nnote}] is not a single-color-button`);
-    }
-    this.output.send("noteon", {
-      note: nnote,
-      velocity: blink ? 0x02 : 0x01,
-      channel: 0,
-    });
-    this.#toggleButton(nnote, true, {
-      blink: blink,
-    });
-  }
-
-  turnOffNote(nnote) {
     this.output.send("noteon", {
       note: nnote,
       velocity: 0,
       channel: 0,
     });
-    this.#toggleButton(nnote, false);
   }
 
-  changeAllMatrix(color, LightingMode = LModes.Brightness100) {
-    for (let i = 0; i < 64; i++) {
-      this.changeMatrixButton(i, color, LightingMode);
+  offAll() {
+    this.forEach((i) => this.offNote(i));
+  }
+
+  forEach(callback) {
+    this.forEachMatrix(callback);
+    this.forEachTrack(callback);
+    this.forEachScene(callback);
+  }
+
+  forEachMatrix(callback) {
+    for (let i = MatrixButtonIdexes.start; i <= MatrixButtonIdexes.end; i++) {
+      callback(i);
     }
   }
 
-  OffAllMatrix() {
-    for (let i = 0; i < 64; i++) {
-      this.turnOffNote(i);
-    }
-  }
-
-  changeAllScene(blink = false) {
-    for (let i = SceneLaunchButtonIndexes.start; i <= SceneLaunchButtonIndexes.end; i++) {
-      this.changeSingleColorButton(i, blink);
-    }
-  }
-
-  offAllScene(blink = false) {
-    for (let i = SceneLaunchButtonIndexes.start; i <= SceneLaunchButtonIndexes.end; i++) {
-      this.turnOffNote(i);
-    }
-  }
-
-  changeAllTrack(blink = false) {
+  forEachTrack(callback) {
     for (let i = TrackButtonIndexes.start; i <= TrackButtonIndexes.end; i++) {
-      this.changeSingleColorButton(i, blink);
+      callback(i);
     }
   }
 
-  offAllTrack(blink = false) {
-    for (let i = TrackButtonIndexes.start; i <= TrackButtonIndexes.end; i++) {
-      this.turnOffNote(i);
-    }
-  }
-
-  turnOffAll() {
-    for (let i = 0; i < 68; i++) {
-      this.turnOffNote(i);
-    }
+  forEachScene(callback) {
     for (let i = SceneLaunchButtonIndexes.start; i <= SceneLaunchButtonIndexes.end; i++) {
-      this.turnOffNote(i);
-    }
-
-    for (let i = TrackButtonIndexes.start; i <= TrackButtonIndexes.end; i++) {
-      this.turnOffNote(i);
+      callback(i);
     }
   }
 
-  // Not production ready
-  #changeMultiple(data) {
-    this.output.send("sysex", [0xf0, ...data, 0xf7]);
+  #isMatrixButton(nnote) {
+    return nnote >= MatrixButtonIdexes.start && nnote <= MatrixButtonIdexes.end;
   }
 
-  #toggleButton(note, active, newConfig, debug = false) {
-    const isMatrixButton = note >= MatrixButtonIdexes.start && note <= MatrixButtonIdexes.end;
-    const buttonMap = isMatrixButton ? this.MatrixButtonMap : this.SCButtonMap;
+  #isSCButton(nnote) {
+    return (
+      (nnote >= SceneLaunchButtonIndexes.start && nnote <= SceneLaunchButtonIndexes.end) ||
+      (nnote >= TrackButtonIndexes.start && nnote <= TrackButtonIndexes.end)
+    );
+  }
 
-    if (!buttonMap.has(note)) {
-      buttonMap.set(note, { active: active, lastConfig: newConfig });
-      if (debug) {
-        console.log(`First time set <${note}> to value <${active}> with new data <${JSON.stringify(newConfig)}>`);
-      }
-      return;
+  #isButtonPressValid(nnote) {
+    if (!this.#isMatrixButton(nnote) && !this.#isSCButton(nnote)) {
+      console.log(`Button <${nnote}> is neither a matrix button, nor a SC button.`);
+      return false;
     }
-
-    const oldData = buttonMap.get(note);
-
-    if (!active) {
-      buttonMap.set(note, { ...oldData, active: active });
-      if (debug) {
-        console.log(
-          `Set note <${note}> to value <${active}> with the updated but old data <${JSON.stringify({
-            ...oldData,
-            active: active,
-          })}>`
-        );
-      }
-      return;
-    }
-
-    buttonMap.set(note, { active: active, lastConfig: newConfig });
-    if (debug) {
-      console.log(`Set note <${note}> to value <${active}> with new data <${JSON.stringify(newConfig)}>`);
-    }
+    return true;
   }
 }
 

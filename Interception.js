@@ -1,27 +1,31 @@
-//! Note: JAVASCRIPT IST DER GRÖSSTE MÜLL UND ICH WILL EIGENTLICH TYPESCRIPT NUTZEN ABER ICH BIN ZU FAUL DAS DANN IMMER ZU KONVERTIEREN
-
 const easymidi = require("easymidi");
 const { Colors, LModes } = require("./constants.js");
 const APCAPI = require("./APCAPI.js");
 
 const mk2output = new easymidi.Output("APC mini mk2");
 const input = new easymidi.Input("APC mini mk2");
-
-const midiloopoutput = new easymidi.Output("loopMidi Middleware");
+const toJoker = new easymidi.Output("JokerIn");
+const fromJoker = new easymidi.Input("JokerOut");
 
 input.on("noteon", function (msg) {
-  api.toggleNote(msg.note);
-  console.log(msg);
+  // api.toggleNote(msg.note);
+  toJoker.send("noteon", {
+    ...msg,
+  });
+});
 
-  // midiloopoutput.send(msg);
+//Fader routing
+input.on("cc", (msg) => {
+  toJoker.send("cc", msg);
+});
+
+fromJoker.on("noteon", (msg) => {
+  // console.log("From Joker: " + JSON.stringify(msg));
+
+  if (msg.velocity == 64) api.setButtonLook(msg.note, "on");
+  else api.setButtonLook(msg.note, "off");
 });
 
 const api = new APCAPI(mk2output);
-
-api.turnOffAll();
-
-api.changeAllMatrix(Colors.Blue, LModes.Brightness100);
-api.changeAllTrack();
-api.changeAllScene();
-
-//TODO: Get the forwarding going and receive the feedback on the same MIDI Loopback device
+api.forEachMatrix((i) => api.setButtonLook(i, "off"));
+api.forEachScene((i) => api.setButtonLook(i, "off"));
