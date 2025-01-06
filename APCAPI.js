@@ -1,4 +1,4 @@
-const { SceneLaunchButtonIndexes, TrackButtonIndexes, MatrixButtonIdexes, LModes, Colors } = require("./constants.js");
+const { SceneLaunchButtonIndexes, TrackButtonIndexes, MatrixButtonIdexes, LModes, Colors, BottmonRightButtonIdex } = require("./constants.js");
 const { buildDesiredLooksMap } = require("./desiredLooks.js");
 
 class APCAPI {
@@ -74,6 +74,7 @@ class APCAPI {
     for (let i = TrackButtonIndexes.start; i <= TrackButtonIndexes.end; i++) {
       callback(i);
     }
+    callback(BottmonRightButtonIdex);
   }
 
   forEachScene(callback) {
@@ -89,7 +90,8 @@ class APCAPI {
   #isSCButton(nnote) {
     return (
       (nnote >= SceneLaunchButtonIndexes.start && nnote <= SceneLaunchButtonIndexes.end) ||
-      (nnote >= TrackButtonIndexes.start && nnote <= TrackButtonIndexes.end)
+      (nnote >= TrackButtonIndexes.start && nnote <= TrackButtonIndexes.end) ||
+      nnote === BottmonRightButtonIdex
     );
   }
 

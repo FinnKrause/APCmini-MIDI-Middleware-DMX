@@ -1,4 +1,7 @@
 const Colors = {
+  Off: 0,
+  White: 3,
+
   Red: 5, // #FF0000
   BrightRed: 4, // #FF4C4C
 
@@ -8,19 +11,21 @@ const Colors = {
   Blue: 45, // #0000FF
   BrightBlue: 36, // #4CC3FF
 
-  Cyan: 119, // #E0FFFF
   Magenta: 53, // #FF00FF
-  Yellow: 13, // #FFFF00
-  BrightYellow: 12, // #FFFF4C
   Orange: 9, // #FF5400
   Purple: 49, // #874CFF
   VividPink: 56, // #FF4C87
   NeonPink: 57, // #FF0054
-  VibrantCyan: 37, // #00A9FF
-  LightBlue: 36, // #4CC3FF
   Turquoise: 32, // #4CFFB7
+
   BrightCoral: 4, // #FF4C4C
-}; //19 Elements
+
+  Yellow: 13, // #FFFF00
+  BrightYellow: 12, // #FFFF4C
+
+  VibrantCyan: 37, // #00A9FF
+  Cyan: 119, // #E0FFFF
+}; //19 Elements ohne Off
 
 const LModes = {
   Brightness10: 0,
@@ -44,11 +49,13 @@ const LModes = {
 const MatrixButtonIdexes = { start: 0, end: 63 };
 const SceneLaunchButtonIndexes = { start: 112, end: 119 };
 const TrackButtonIndexes = { start: 100, end: 107 };
+const BottmonRightButtonIdex = 122;
 
 module.exports = {
   Colors,
   LModes,
   MatrixButtonIdexes,
+  BottmonRightButtonIdex,
   SceneLaunchButtonIndexes,
   TrackButtonIndexes,
 };
