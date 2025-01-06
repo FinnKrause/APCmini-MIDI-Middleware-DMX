@@ -13,10 +13,11 @@ class APCAPI {
     if (!this.desiredLooks.has(nnote) || this.desiredLooks.get(nnote)[look] == undefined) {
       switch (look) {
         case "off":
-          this.changeButton(nnote, Colors.Red, LModes.Brightness10);
+          // this.changeButton(nnote, Colors.Red, LModes.Brightness10);
+          this.offNote(nnote);
           break;
         default:
-          this.changeButton(nnote, Colors.Red, LModes.Pulsing1t4);
+          this.changeButton(nnote, Colors.Red, LModes.Blinking1t16);
           break;
       }
       return;
@@ -38,7 +39,7 @@ class APCAPI {
     } else if (this.#isSCButton(nnote)) {
       this.output.send("noteon", {
         note: nnote,
-        velocity: lmode > 6 ? 0x02 : 0x01,
+        velocity: lmode > 6 ? 0x02 : lmode == 0 ? 0x0 : 0x01,
         channel: 0,
       });
     }

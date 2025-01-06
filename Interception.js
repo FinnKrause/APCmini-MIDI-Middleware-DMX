@@ -8,7 +8,10 @@ const toJoker = new easymidi.Output("JokerIn");
 const fromJoker = new easymidi.Input("JokerOut");
 
 const APCmini = new APCAPI(toAPC);
-APCmini.offAll();
+
+APCmini.forEachMatrix((i) => APCmini.setButtonLook(i, "off"));
+APCmini.forEachScene((i) => APCmini.setButtonLook(i, "off"));
+APCmini.forEachTrack((i) => APCmini.setButtonLook(i, "off"));
 
 // Forwarding all traffic
 // Direction: APC mini --> DMX Joker
@@ -21,7 +24,3 @@ fromJoker.on("noteon", (msg) => {
   if (msg.velocity == 64) APCmini.setButtonLook(msg.note, "on");
   else APCmini.setButtonLook(msg.note, "off");
 });
-
-APCmini.forEachMatrix((i) => APCmini.setButtonLook(i, "off"));
-APCmini.forEachScene((i) => APCmini.setButtonLook(i, "off"));
-APCmini.forEachTrack((i) => APCmini.setButtonLook(i, "off"));
