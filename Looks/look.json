@@ -1,0 +1,12 @@
+{
+    "10-15": {
+        "on": {
+            "color": "Green",
+            "mode": "Brightness100"
+        },
+        "off": {
+            "color": "Green",
+            "mode": "Blinking1t2"
+        }
+    }
+}

@@ -56,7 +56,7 @@ class APCAPI {
   }
 
   offAll() {
-    this.forEach((i) => this.offNote(i));
+    this.forEach(this.offNote);
   }
 
   forEach(callback) {

@@ -1,0 +1,44 @@
+//Colors//
+Colors Keys:
+//Lighting Modes//
+
+"Off"
+"White"
+"Red"
+"BrightRed"
+"Green"
+"BrightGreen"
+"Blue"
+"BrightBlue"
+"Magenta"
+"Orange"
+"Purple"
+"VividPink"
+"NeonPink"
+"Turquoise"
+"BrightCoral"
+"Yellow"
+"BrightYellow"
+"VibrantCyan"
+"Cyan"
+
+//Lighting Modes//
+LModes Keys:
+//Lighting Modes//
+
+"Brightness10"
+"Brightness25"
+"Brightness50"
+"Brightness65"
+"Brightness75"
+"Brightness90"
+"Brightness100"
+"Pulsing1t16"
+"Pulsing1t8"
+"Pulsing1t4"
+"Pulsing1t2"
+"Blinking1t24"
+"Blinking1t16"
+"Blinking1t8"
+"Blinking1t4"
+"Blinking1t2"
